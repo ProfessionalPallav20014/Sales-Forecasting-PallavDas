@@ -1,5 +1,7 @@
 import streamlit as st
-
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
 # ---------------------------------------------------------------------------
 # Single entry point for the multi-page Sales Forecasting Dashboard.
 # Each business page lives in pages/ as its own script; st.navigation wires
