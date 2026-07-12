@@ -8,3 +8,6 @@ prophet
 streamlit
 xgboost
 scikit-learn
+plotly
+joblib
+scipy
