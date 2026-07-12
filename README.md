@@ -14,6 +14,11 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
+## 🚀 Live Demo
+
+You can access the deployed application here:
+👉 **[Live Application Demo](YOUR_DEPLOYED_LINK_HERE)**
+
 `app.py` is the only entry point — don't run the files inside `pages/` directly.
 Streamlit's built-in multi-page navigation (via `st.navigation`) reads the
 number prefix on each filename to fix page order, and shows the `title=`
