@@ -5,6 +5,7 @@ import streamlit as st
 import pandas as pd
 import joblib
 import seaborn as sns
+import matplotlib.dates as mdates
 
 # Page 2 — Forecast Explorer
 #     • Dropdown to select: Category or Region
@@ -21,12 +22,20 @@ st.set_page_config(page_title="Forecast Explorer", layout="wide")
 st.markdown("# Forecast Explorer")
 st.sidebar.header("Forecast Explorer")
 
+df = pd.read_csv("train.csv")
+df["Order Date"] = pd.to_datetime(df["Order Date"],dayfirst=True)
+monthly = (
+        df.set_index("Order Date")["Sales"]
+        .resample("ME")
+        .sum()
+    )
+
 forecast_type = st.selectbox("Select Forecast Type", ["Category", "Region"], key="forecast_type")
 
 if forecast_type == "Category":
-    available_options = ["Technology", "Furniture", "Office Supplies"]
+    available_options = df['Category'].unique()
 else:
-    available_options = ["North", "South", "East", "West"]
+    available_options = df['Region'].unique()
 
 selected_segment = st.sidebar.selectbox(
     f"Select Specific {forecast_type}",
@@ -106,7 +115,7 @@ else:
                 start=pd.Timestamp.now(), periods=forecast_horizon, freq='ME'
             )
             forecast_df = pd.DataFrame(
-                {'Forecasted Sales': forecast_output}, index=forecast_dates
+                {'Forecasted Sales': forecast_output.values}, index=forecast_dates
             )
 
             col1, col2 = st.columns([3, 1])
@@ -123,9 +132,10 @@ else:
                 )
                 ax.set_xlabel("Timeline")
                 ax.set_ylabel("Sales ($)")
-                ax.xaxis.set_major_formatter(
-                    plt.FuncFormatter(lambda x, p: pd.to_datetime(x).strftime('%b %d'))
-                )
+                # ax.xaxis.set_major_formatter(
+                #     plt.FuncFormatter(lambda x, p: pd.to_datetime(x).strftime('%b %d'))
+                # )
+                ax.xaxis.set_major_formatter(mdates.DateFormatter('%b %d'))
                 ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f"${x:,.0f}"))
                 plt.grid(True, linestyle=':', alpha=0.6)
                 st.pyplot(fig)
@@ -157,8 +167,8 @@ st.markdown("---")
 with st.expander("Compare accuracy across all segments"):
     rows = []
     for f_type, segments in [
-        ("Category", ["Technology", "Furniture", "Office Supplies"]),
-        ("Region", ["North", "South", "East", "West"]),
+        ("Category", df['Category'].unique()),
+        ("Region", df["Region"].unique()),
     ]:
         for seg in segments:
             path = get_model_filename(f_type, seg)

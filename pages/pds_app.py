@@ -15,17 +15,25 @@ st.sidebar.header("Product Demand Segments")
 FEATURES_DISPLAY = ['Total_Sales_Volume', 'Average_Order_Value', 'Sales_Volatility', 'YoY_Sales_Growth_Rate_Pct']
 
 # --- Load pre-computed cluster assignments (already scored in analysis.ipynb) ---
+# main_data = pd.read_csv("train.csv")
 @st.cache_data
 def load_data():
-    return pd.read_csv('data/product_profile_with_clusters.csv')
+    return pd.read_csv('product_profile_with_clusters.csv')
 
 # --- Load model artifacts (kept for scoring NEW products in-app, not for the plot below) ---
 @st.cache_resource
 def load_model_artifacts():
     scaler = joblib.load('models/scaler.pkl')
-    kmeans_model = joblib.load('models/kmeans_model.pkl')
-    cluster_label_mapping = joblib.load('models/cluster_label_mapping.pkl')
-    features = joblib.load('models/cluster_features.pkl')
+    kmeans_model = joblib.load('models/final_kmeans_model.pkl')
+    # cluster_label_mapping = joblib.load('models/cluster_label_mapping.pkl')
+    cluster_label_mapping = {
+        0: "High Volume, Stable Demand",
+        1: "Low Volume, High Volatility",
+        2: "Growing Demand",
+        3: "Declining Demand"
+    }
+    # features = joblib.load('models/cluster_features.pkl')
+    features = ['Total_Sales_Volume', 'Average_Order_Value', 'Sales_Volatility', 'YoY_Sales_Growth_Rate_Pct']
     return scaler, kmeans_model, cluster_label_mapping, features
 
 df = load_data()
@@ -40,7 +48,7 @@ fig = px.scatter(
     y='Sales_Volatility',
     color='Demand_Group',
     size='Average_Order_Value',
-    hover_name='Sub_Category',
+    # hover_name='Sub_Category',
     hover_data=FEATURES_DISPLAY,
 )
 fig.update_traces(marker=dict(line=dict(width=1, color='white')))
@@ -54,7 +62,8 @@ st.plotly_chart(fig, use_container_width=True)
 # --- Table: which sub-categories fall into which cluster ---
 st.subheader("Sub-Category → Demand Cluster Mapping")
 st.dataframe(
-    df[['Sub_Category', 'Demand_Group'] + FEATURES_DISPLAY].sort_values('Demand_Group'),
+    # df[['Sub_Category', 'Demand_Group'] + FEATURES_DISPLAY].sort_values('Demand_Group')
+    df.sort_values('Demand_Group').sort_values('Demand_Group'),
     use_container_width=True,
     hide_index=True,
 )
