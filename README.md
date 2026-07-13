@@ -70,10 +70,3 @@ your_project/
   (Streamlit's own page navigation replaces them).
 - Everything else — data loading, model loading, charts, tables — is untouched
   from your original `sfd_app.py`, `fe_app.py`, `ar_app.py`, `pds_app.py`.
-
-## Note on Sales Overview
-
-The spec for that page also calls for a monthly sales trend line chart and
-an interactive region/category filter, but the original `sfd_app.py` only
-implemented the yearly bar chart — that gap carried over as-is. Say the word
-if you'd like those two pieces added.
